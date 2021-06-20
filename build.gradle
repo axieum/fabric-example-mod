@@ -1,6 +1,7 @@
 plugins {
     id 'java'
     id 'maven-publish'
+    id 'com.modrinth.minotaur' version '1.2.1'
     id 'com.matthewprenger.cursegradle' version '1.4.0'
     id 'fabric-loom' version '0.8-SNAPSHOT'
 }
@@ -70,6 +71,30 @@ allprojects {
         maven { name 'Fabric'; url 'https://maven.fabricmc.net/' }
         maven { name 'TerraformersMC'; url 'https://maven.terraformersmc.com/' }
     }
+}
+
+// Publish to the Modrinth platform
+import com.modrinth.minotaur.TaskModrinthUpload
+
+task publishModrinth (type: TaskModrinthUpload){
+    // Only attempt to run this task if the MODRINTH_TOKEN variable is set (and use that as the token), otherwise SKIP it
+    onlyIf { System.getenv("MODRINTH_TOKEN") != null }
+    token = System.getenv("MODRINTH_TOKEN")
+
+    // Set the project ID
+    projectId = project.modrinth_project_id
+    // Set the game version
+    versionNumber = project.mod_version
+    // Only upload the remapped (usable) jar
+    uploadFile = remapJar
+    // Use the minecraft_version variable for setting the supported MC version
+    addGameVersion(project.minecraft_version)
+    // Add the Fabric loader
+    addLoader('fabric')
+    // Set the release type
+    versionType = project.version.contains('alpha') ? 'alpha' : project.version.contains('beta') ? 'beta' : 'release'
+    // Set the release notes
+    changelog = "For a list of changes, please refer to https://github.com/${project.github_repo}/releases/tag/v${project.version}"
 }
 
 // Define how artifacts are published to CurseForge (https://curseforge.com)
