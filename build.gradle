@@ -1,0 +1,127 @@
+plugins {
+    id 'java'
+    id 'maven-publish'
+    id 'com.matthewprenger.cursegradle' version '1.4.0'
+    id 'fabric-loom' version '0.8-SNAPSHOT'
+}
+
+group = project.maven_group
+version = project.mod_version
+archivesBaseName = "${project.mod_id}-mc${project.minecraft_version}"
+
+sourceCompatibility = targetCompatibility = JavaVersion.VERSION_16
+
+// Declare dependencies
+dependencies {
+    // Fabric
+    minecraft "com.mojang:minecraft:${project.minecraft_version}"
+    mappings "net.fabricmc:yarn:${project.yarn_mappings}:v2"
+    modImplementation "net.fabricmc:fabric-loader:${project.loader_version}"
+
+    // Mods
+    modImplementation "net.fabricmc.fabric-api:fabric-api:${project.fabric_version}"
+    modImplementation "com.terraformersmc:modmenu:${project.mod_menu_version}"
+
+    // Code Quality
+    compileOnly "org.jetbrains:annotations:${project.jetbrains_annotations_version}"
+    testImplementation "org.junit.jupiter:junit-jupiter-api:${project.junit_jupiter_version}"
+    testRuntimeOnly "org.junit.jupiter:junit-jupiter-engine:${project.junit_jupiter_version}"
+}
+
+// Process any resources
+processResources {
+    inputs.property 'id', project.mod_id
+    inputs.property 'name', project.mod_name
+    inputs.property 'version', project.version
+
+    // fabric.mod.json
+    filesMatching('fabric.mod.json') {
+        expand(['id': project.mod_id, 'name': project.mod_name, 'version': project.version])
+    }
+}
+
+// Perform tests using the JUnit test suite
+test {
+    useJUnitPlatform()
+}
+
+// Produce a sources distribution
+java {
+    withSourcesJar()
+}
+
+// Add the licence to the distribution
+jar {
+    from "LICENCE.txt"
+}
+
+// Add any additional repositories
+repositories {
+    mavenCentral()
+    maven { name 'Fabric'; url 'https://maven.fabricmc.net/' }
+    maven { name 'TerraformersMC'; url 'https://maven.terraformersmc.com/' }
+}
+
+// Define how artifacts are published to CurseForge (https://curseforge.com)
+curseforge {
+    // Set the API token from the environment
+    apiKey System.getenv('CURSEFORGE_TOKEN') ?: ''
+
+    // Declare all projects
+    project {
+        // Set the project id
+        id = project.cf_project_id
+        // Set the release type
+        releaseType = project.version.contains('alpha') ? 'alpha' : project.version.contains('beta') ? 'beta' : 'release'
+        // Set the release notes
+        changelog = "For a list of changes, please refer to https://github.com/${project.github_repo}/releases/tag/v${project.version}"
+        // Add all supported game versions
+        project.cf_game_versions.split(',').each { addGameVersion it }
+        // Add the main artifact
+        mainArtifact(remapJar) { displayName = "${project.mod_name} v${project.version} for Minecraft ${project.minecraft_version}" }
+        // Add any additional artifacts
+        addArtifact sourcesJar
+        addArtifact jar
+        // Add any dependencies
+        relations {
+            if (project.cf_relations_required) project.cf_relations_required.split(',').each { requiredDependency it }
+            if (project.cf_relations_optional) project.cf_relations_optional.split(',').each { optionalDependency it }
+            if (project.cf_relations_embedded) project.cf_relations_embedded.split(',').each { embeddedLibrary it }
+            if (project.cf_relations_tools) project.cf_relations_tools.split(',').each { tool it }
+            if (project.cf_relations_incompatible) project.cf_relations_incompatible.split(',').each { incompatible it }
+        }
+    }
+
+    // Configure other options
+    options {
+        forgeGradleIntegration = false
+    }
+}
+
+// Define how packages are published
+publishing {
+    // Declare all publications
+    publications {
+        mavenJava(MavenPublication) {
+            // Main
+            artifact(remapJar) { builtBy remapJar }
+            // Sources
+            artifact(sourcesJar) { builtBy remapSourcesJar }
+        }
+    }
+
+    // Add repositories to publish to
+    repositories {
+        // GitHub Packages (https://pkg.github.com)
+        maven {
+            name 'GitHub'
+            url "https://maven.pkg.github.com/${project.github_repo}"
+            credentials {
+                username System.getenv('GITHUB_ACTOR')
+                password System.getenv('GITHUB_TOKEN')
+            }
+        }
+    }
+}
+
+publish.finalizedBy tasks.curseforge

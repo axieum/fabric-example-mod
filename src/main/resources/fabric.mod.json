@@ -1,0 +1,35 @@
+{
+  "schemaVersion": 1,
+  "id": "${id}",
+  "version": "${version}",
+  "name": "${name}",
+  "description": "Lorem ipsum dolor sit amet",
+  "authors": [
+    "[fullname]"
+  ],
+  "contact": {
+    "homepage": "https://github.com/axieum/fabric-example-mod",
+    "sources": "https://github.com/axieum/fabric-example-mod",
+    "issues": "https://github.com/axieum/fabric-example-mod/issues"
+  },
+  "license": "MIT",
+  "icon": "assets/modid/icon.png",
+  "environment": "*",
+  "entrypoints": {
+    "main": [
+      "com.example.modid.Example"
+    ]
+  },
+  "mixins": [
+    "modid.mixins.json"
+  ],
+  "depends": {
+    "java": ">=16",
+    "minecraft": "1.17.x",
+    "fabricloader": ">=0.11.3",
+    "fabric": "*"
+  },
+  "suggests": {
+    "modmenu": "*"
+  }
+}
