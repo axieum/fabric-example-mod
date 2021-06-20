@@ -13,15 +13,15 @@
     "issues": "https://github.com/axieum/fabric-example-mod/issues"
   },
   "license": "MIT",
-  "icon": "assets/modid/icon.png",
+  "icon": "assets/modid-sub/icon.png",
   "environment": "*",
   "entrypoints": {
     "main": [
-      "com.example.modid.Example"
+      "com.example.modid.submod.AnotherExample"
     ]
   },
   "mixins": [
-    "modid.mixins.json"
+    "modid-sub.mixins.json"
   ],
   "depends": {
     "java": ">=16",
@@ -29,10 +29,10 @@
     "fabricloader": ">=0.11.3",
     "fabric": "*"
   },
-  "recommends": {
-    "modid-sub": "*"
-  },
-  "suggests": {
-    "modmenu": "*"
+  "custom": {
+    "modmenu": {
+      "parent": "modid",
+      "badges": ["library"]
+    }
   }
 }
