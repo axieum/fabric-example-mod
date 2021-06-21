@@ -5,61 +5,71 @@ plugins {
     id 'fabric-loom' version '0.8-SNAPSHOT'
 }
 
-group = project.maven_group
-version = project.mod_version
-archivesBaseName = "${project.mod_id}-mc${project.minecraft_version}"
+allprojects {
+    apply plugin: 'fabric-loom'
 
-sourceCompatibility = targetCompatibility = JavaVersion.VERSION_16
+    group = project.maven_group
+    version = project.mod_version
+    archivesBaseName = "${project.mod_id}-mc${project.minecraft_version}"
 
-// Declare dependencies
-dependencies {
-    // Fabric
-    minecraft "com.mojang:minecraft:${project.minecraft_version}"
-    mappings "net.fabricmc:yarn:${project.yarn_mappings}:v2"
-    modImplementation "net.fabricmc:fabric-loader:${project.loader_version}"
+    sourceCompatibility = targetCompatibility = JavaVersion.VERSION_16
 
-    // Mods
-    modImplementation "net.fabricmc.fabric-api:fabric-api:${project.fabric_version}"
-    modImplementation "com.terraformersmc:modmenu:${project.mod_menu_version}"
+    // Declare dependencies
+    dependencies {
+        // Fabric
+        minecraft "com.mojang:minecraft:${project.minecraft_version}"
+        mappings "net.fabricmc:yarn:${project.yarn_mappings}:v2"
+        modImplementation "net.fabricmc:fabric-loader:${project.loader_version}"
 
-    // Code Quality
-    compileOnly "org.jetbrains:annotations:${project.jetbrains_annotations_version}"
-    testImplementation "org.junit.jupiter:junit-jupiter-api:${project.junit_jupiter_version}"
-    testRuntimeOnly "org.junit.jupiter:junit-jupiter-engine:${project.junit_jupiter_version}"
-}
+        // Mods
+        modImplementation "net.fabricmc.fabric-api:fabric-api:${project.fabric_version}"
+        modImplementation "com.terraformersmc:modmenu:${project.mod_menu_version}"
 
-// Process any resources
-processResources {
-    inputs.property 'id', project.mod_id
-    inputs.property 'name', project.mod_name
-    inputs.property 'version', project.version
+        // Code Quality
+        compileOnly "org.jetbrains:annotations:${project.jetbrains_annotations_version}"
+        testImplementation "org.junit.jupiter:junit-jupiter-api:${project.junit_jupiter_version}"
+        testRuntimeOnly "org.junit.jupiter:junit-jupiter-engine:${project.junit_jupiter_version}"
 
-    // fabric.mod.json
-    filesMatching('fabric.mod.json') {
-        expand(['id': project.mod_id, 'name': project.mod_name, 'version': project.version])
+        // Subprojects
+        subprojects.each {
+            implementation project(":${it.name}")
+            include project("${it.name}:") // nest within distribution
+        }
     }
-}
 
-// Perform tests using the JUnit test suite
-test {
-    useJUnitPlatform()
-}
+    // Perform tests using the JUnit test suite
+    test {
+        useJUnitPlatform()
+    }
 
-// Produce a sources distribution
-java {
-    withSourcesJar()
-}
+    // Produce a sources distribution
+    java {
+        withSourcesJar()
+    }
 
-// Add the licence to the distribution
-jar {
-    from "LICENCE.txt"
-}
+    // Add the licence to all distributions
+    tasks.withType(Jar).configureEach {
+        it.from rootProject.file('LICENCE.txt')
+    }
 
-// Add any additional repositories
-repositories {
-    mavenCentral()
-    maven { name 'Fabric'; url 'https://maven.fabricmc.net/' }
-    maven { name 'TerraformersMC'; url 'https://maven.terraformersmc.com/' }
+    // Process any resources
+    processResources {
+        inputs.property 'id', project.mod_id
+        inputs.property 'name', project.mod_name
+        inputs.property 'version', project.version
+
+        // fabric.mod.json
+        filesMatching('fabric.mod.json') {
+            expand(['id': project.mod_id, 'name': project.mod_name, 'version': project.version])
+        }
+    }
+
+    // Add any additional repositories
+    repositories {
+        mavenCentral()
+        maven { name 'Fabric'; url 'https://maven.fabricmc.net/' }
+        maven { name 'TerraformersMC'; url 'https://maven.terraformersmc.com/' }
+    }
 }
 
 // Define how artifacts are published to CurseForge (https://curseforge.com)
@@ -82,6 +92,11 @@ curseforge {
         // Add any additional artifacts
         addArtifact sourcesJar
         addArtifact jar
+        subprojects.each {
+            addArtifact it.remapJar
+            addArtifact it.sourcesJar
+            addArtifact it.jar
+        }
         // Add any dependencies
         relations {
             if (project.cf_relations_required) project.cf_relations_required.split(',').each { requiredDependency it }
