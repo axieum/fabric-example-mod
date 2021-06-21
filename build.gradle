@@ -73,30 +73,6 @@ allprojects {
     }
 }
 
-// Publish to the Modrinth platform
-import com.modrinth.minotaur.TaskModrinthUpload
-
-task publishModrinth (type: TaskModrinthUpload){
-    // Only attempt to run this task if the MODRINTH_TOKEN variable is set (and use that as the token), otherwise SKIP it
-    onlyIf { System.getenv("MODRINTH_TOKEN") != null }
-    token = System.getenv("MODRINTH_TOKEN")
-
-    // Set the project ID
-    projectId = project.modrinth_project_id
-    // Set the game version
-    versionNumber = project.mod_version
-    // Only upload the remapped (usable) jar
-    uploadFile = remapJar
-    // Use the minecraft_version variable for setting the supported MC version
-    addGameVersion(project.minecraft_version)
-    // Add the Fabric loader
-    addLoader('fabric')
-    // Set the release type
-    versionType = project.version.contains('alpha') ? 'alpha' : project.version.contains('beta') ? 'beta' : 'release'
-    // Set the release notes
-    changelog = "For a list of changes, please refer to https://github.com/${project.github_repo}/releases/tag/v${project.version}"
-}
-
 // Define how artifacts are published to CurseForge (https://curseforge.com)
 curseforge {
     // Set the API token from the environment
@@ -138,6 +114,48 @@ curseforge {
     }
 }
 
+// Define how artifacts are published to Modrinth (https://modrinth.com)
+import com.modrinth.minotaur.TaskModrinthUpload
+task modrinth(type: TaskModrinthUpload) {
+    // Set task metadata
+    description 'Uploads all Modrinth projects'
+    group 'upload'
+    allprojects.each { dependsOn it.build }
+
+    // Set the API token from the environment
+    token = System.getenv('MODRINTH_TOKEN') ?: ''
+    onlyIf { !token.isEmpty() }
+
+    // Set the project id
+    projectId = project.mr_project_id
+    // Set the release name
+    versionName = "${project.mod_name} v${project.version} for Minecraft ${project.minecraft_version}"
+    // Set the release type
+    versionType = project.version.contains('alpha') ? 'alpha' : project.version.contains('beta') ? 'beta' : 'release'
+    // Set the release version
+    versionNumber = project.version
+    // Set the release notes
+    changelog = "For a list of changes, please refer to https://github.com/${project.github_repo}/releases/tag/v${project.version}"
+    // Add all supported mod loaders
+    addLoader 'fabric'
+    // Add all supported game versions
+    project.mr_game_versions.split(',').each { addGameVersion it }
+    // Add the main artifact
+    uploadFile = remapJar
+//    // Add any additional artifacts
+//    addFile sourcesJar
+//    addFile jar
+//    subprojects.each {
+//        addFile it.remapJar
+//        addFile it.sourcesJar
+//        addFile it.jar
+//    }
+    // Add any dependencies
+    if (project.mr_relations_required) project.mr_relations_required.split(',').each { addDependency it, 'required' }
+    if (project.mr_relations_optional) project.mr_relations_optional.split(',').each { addDependency it, 'optional' }
+    if (project.mr_relations_incompatible) project.mr_relations_incompatible.split(',').each { addDependency it, 'incompatible' }
+}
+
 // Define how packages are published
 publishing {
     // Declare all publications
@@ -164,4 +182,4 @@ publishing {
     }
 }
 
-publish.finalizedBy tasks.curseforge
+publish.finalizedBy tasks.curseforge, tasks.modrinth
