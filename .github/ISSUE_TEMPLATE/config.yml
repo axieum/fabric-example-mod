@@ -1,0 +1,8 @@
+blank_issues_enabled: true
+contact_links:
+  - name: [fullname]
+    url: mailto://[email]
+    about: Please direct critical enquiries here.
+  - name: The Fabric Project
+    url: https://discord.gg/v6v4pMv
+    about: Please ask and answer questions related to Fabric here.
