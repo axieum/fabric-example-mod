@@ -32,13 +32,14 @@ vulnerabilities.
 
 ## Licence
 
-Example is open-sourced software licenced under the [MIT licence][licence].
+<!-- todo: see https://choosealicense.com -->
+Example is open-sourced software licenced under the [CC0 licence][licence].
 
 [contributing]: .github/CONTRIBUTING.md
 [curseforge]: https://curseforge.com/minecraft/mc-mods/modid
 [curseforge:files]: https://curseforge.com/minecraft/mc-mods/modid/files
 [fabric]: https://fabricmc.net/
-[licence]: https://opensource.org/licenses/MIT
+[licence]: https://creativecommons.org/publicdomain/zero/1.0
 [minecraft]: https://minecraft.net/
 [releases]: https://github.com/axieum/fabric-example-mod/releases
 [security]: .github/SECURITY.md

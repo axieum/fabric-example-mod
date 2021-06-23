@@ -12,7 +12,7 @@
     "sources": "https://github.com/axieum/fabric-example-mod",
     "issues": "https://github.com/axieum/fabric-example-mod/issues"
   },
-  "license": "MIT",
+  "license": "CC0",
   "icon": "assets/modid/icon.png",
   "environment": "*",
   "entrypoints": {
