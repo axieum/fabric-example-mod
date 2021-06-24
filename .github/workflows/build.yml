@@ -43,13 +43,19 @@ jobs:
             ${{ runner.os }}-gradle-
 
       - name: 🔨 Build artifacts
-        run: gradle build
+        run: gradle clean build
 
       - name: 📦 Upload artifacts
         uses: actions/upload-artifact@v2
         with:
           name: artifacts
-          path: '**/build/libs'
+          path: '**/build/libs/'
+
+      - name: 📝 Upload reports
+        uses: actions/upload-artifact@v2
+        with:
+          name: reports
+          path: '**/build/reports/'
 
       - name: 🧨 Cleanup Gradle cache
         run: |
