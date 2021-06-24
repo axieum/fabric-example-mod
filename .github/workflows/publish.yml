@@ -12,6 +12,14 @@ on:
       - next-major
       - beta
       - alpha
+    paths:
+      - '**/src/main/**'
+      - '**/build.gradle'
+      - '**/gradle.properties'
+      - '**/settings.gradle'
+      - .github/workflows/publish.yml
+      - .releaserc*
+      - LICENCE.txt
 
 jobs:
   publish:
