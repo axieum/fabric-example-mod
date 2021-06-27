@@ -1,5 +1,6 @@
 plugins {
     id 'java'
+    id 'checkstyle'
     id 'maven-publish'
     id 'com.modrinth.minotaur' version '1.2.1'
     id 'com.matthewprenger.cursegradle' version '1.4.0'
@@ -7,6 +8,8 @@ plugins {
 }
 
 allprojects {
+    apply plugin: 'java'
+    apply plugin: 'checkstyle'
     apply plugin: 'fabric-loom'
 
     group = project.maven_group
@@ -63,6 +66,12 @@ allprojects {
         filesMatching('fabric.mod.json') {
             expand(['id': project.mod_id, 'name': project.mod_name, 'version': project.version])
         }
+    }
+
+    // Perform linting using Checkstyle
+    checkstyle {
+        configFile rootProject.file('.checkstyle.xml')
+        toolVersion project.checkstyle_version
     }
 
     // Add any additional repositories

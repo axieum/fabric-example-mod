@@ -52,6 +52,7 @@ jobs:
           path: '**/build/libs/'
 
       - name: 📝 Upload reports
+        if: ${{ always() }}
         uses: actions/upload-artifact@v2
         with:
           name: reports

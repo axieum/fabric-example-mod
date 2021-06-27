@@ -13,7 +13,7 @@ trim_trailing_whitespace = true
 [*.java]
 max_line_length = 120
 
-[*.{json,yml}]
+[*.{json,xml,yml}]
 indent_size = 2
 
 [*.md]
