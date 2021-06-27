@@ -53,7 +53,8 @@
     <module name="AvoidStarImport"/>
     <module name="IllegalImport"/>
     <module name="ImportOrder">
-      <property name="groups" value="java,javax,*,net.minecraft,net.fabricmc"/>
+      <!-- todo: replace 'com.example' import group -->
+      <property name="groups" value="java,javax,*,com.mojang,net.minecraft,net.fabricmc,com.example"/>
       <property name="separated" value="true"/>
     </module>
     <module name="RedundantImport"/>
