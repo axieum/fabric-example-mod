@@ -130,7 +130,21 @@ the [Branching Strategy](#branching-strategy), a
 GitHub [workflow][workflow:publish] is triggered. This workflow in turn
 executes [semantic-release][semantic-release].
 
+## Code Style
+
+This project uses [Checkstyle][checkstyle] to assist in ensuring all
+contributions adhere to a specific code style. Our configuration can be found
+under [.checkstyle.xml][checkstyle:config].
+
+You can check the project for any lint errors via `gradle check`.
+
+There are a collection of [Checkstyle tools][checkstyle:tools] available to add
+this functionality to your IDE.
+
 [changelog]: ../CHANGELOG.md
+[checkstyle]: https://github.com/checkstyle/checkstyle
+[checkstyle:config]: ../.checkstyle.xml
+[checkstyle:tools]: https://checkstyle.org/index.html#Related_Tools
 [codeofconduct]: CODE_OF_CONDUCT.md
 [conventionalcommits]: https://www.conventionalcommits.org/
 [github:actions]: https://github.com/features/actions
