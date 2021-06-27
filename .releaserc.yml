@@ -5,8 +5,9 @@ plugins:
   - '@semantic-release/release-notes-generator'
   - '@semantic-release/changelog'
   - - '@semantic-release/exec'
-    - prepareCmd: sed -i -E 's/^(mod_version\s*=\s*).*$/\1${nextRelease.version}/I' gradle.properties **/gradle.properties
-      publishCmd: gradle clean build publish
+    - verifyConditionsCmd: gradle clean check
+      prepareCmd: sed -i -E 's/^(mod_version\s*=\s*).*$/\1${nextRelease.version}/I' gradle.properties **/gradle.properties
+      publishCmd: gradle build publish
   - - '@semantic-release/github'
     - assets:
         - '**/build/libs/**'
