@@ -13,7 +13,8 @@ assets:
 # Add 'ci' label for changes to the deployment process
 ci:
   - '.releaserc*'
-  - '.github/workflows/publish.yml'
+  - any: ['.github/workflows/**/*', '!.github/workflows/build.yml']
+  - '.github/labeler.yml'
 
 # Add 'build' label for changes to the build process
 build:
