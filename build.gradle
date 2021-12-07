@@ -36,7 +36,7 @@ allprojects {
 
         // Subprojects
         subprojects.each {
-            implementation project(":${it.name}")
+            implementation project(path: ":${it.name}", configuration: 'namedElements')
             include project("${it.name}:") // nest within distribution
         }
     }
