@@ -1,0 +1,57 @@
+# Prepares, builds and publishes new releases
+
+name: Release
+
+on:
+  push:
+    branches:
+      - main
+      - master
+  workflow_dispatch:
+
+jobs:
+  release:
+    name: Release
+
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: 🙌 Prepare release
+        id: release-please
+        uses: GoogleCloudPlatform/release-please-action@v3
+        with:
+          command: manifest
+          config-file: .github/release-please.json
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: ✨ Checkout repository
+        if: ${{ steps.release-please.outputs.release_created }}
+        uses: actions/checkout@v2
+
+      - name: ☕ Set up JDK 17
+        if: ${{ steps.release-please.outputs.release_created }}
+        uses: actions/setup-java@v2
+        with:
+          java-version: 17
+          distribution: adopt
+
+      - name: 🐘 Set up Gradle
+        if: ${{ steps.release-please.outputs.release_created }}
+        uses: gradle/gradle-build-action@v2
+
+      - name: 📢 Publish new release
+        if: ${{ steps.release-please.outputs.release_created }}
+        run: ./gradlew publish
+        env:
+          CURSEFORGE_TOKEN: ${{ secrets.CURSEFORGE_TOKEN }}
+          MODRINTH_TOKEN: ${{ secrets.MODRINTH_TOKEN }}
+
+      - name: 📦 Upload artifacts
+        if: ${{ steps.release-please.outputs.release_created }}
+        uses: svenstaro/upload-release-action@v2
+        with:
+          tag: ${{ steps.release-please.outputs.tag_name }}
+          file: '**/build/libs/*'
+          file_glob: true
+          overwrite: true
+          repo_token: ${{ secrets.GITHUB_TOKEN }}

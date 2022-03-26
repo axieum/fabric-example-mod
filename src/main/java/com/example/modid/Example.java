@@ -5,6 +5,9 @@ import org.apache.logging.log4j.Logger;
 
 import net.fabricmc.api.ModInitializer;
 
+/**
+ * Example Minecraft mod.
+ */
 public class Example implements ModInitializer
 {
     public static final Logger LOGGER = LogManager.getLogger("modid");
