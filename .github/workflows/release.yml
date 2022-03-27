@@ -2,6 +2,7 @@
 
 name: Release
 
+# On changes to release branches
 on:
   push:
     branches:
@@ -24,34 +25,40 @@ jobs:
           config-file: .github/release-please.json
           token: ${{ secrets.GITHUB_TOKEN }}
 
+    outputs:
+      release_created: ${{ steps.release-please.outputs.release_created }}
+      tag_name: ${{ steps.release-please.outputs.tag_name }}
+
+  publish:
+    name: Publish
+
+    runs-on: ubuntu-latest
+    needs: release
+    if: ${{ needs.release.outputs.release_created }}
+
+    steps:
       - name: ✨ Checkout repository
-        if: ${{ steps.release-please.outputs.release_created }}
         uses: actions/checkout@v2
 
       - name: ☕ Set up JDK 17
-        if: ${{ steps.release-please.outputs.release_created }}
         uses: actions/setup-java@v2
         with:
           java-version: 17
           distribution: adopt
 
       - name: 🐘 Set up Gradle
-        if: ${{ steps.release-please.outputs.release_created }}
         uses: gradle/gradle-build-action@v2
 
       - name: 📢 Publish new release
-        if: ${{ steps.release-please.outputs.release_created }}
         run: ./gradlew publish
         env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           CURSEFORGE_TOKEN: ${{ secrets.CURSEFORGE_TOKEN }}
           MODRINTH_TOKEN: ${{ secrets.MODRINTH_TOKEN }}
 
       - name: 📦 Upload artifacts
-        if: ${{ steps.release-please.outputs.release_created }}
-        uses: svenstaro/upload-release-action@v2
+        uses: softprops/action-gh-release@v1
         with:
-          tag: ${{ steps.release-please.outputs.tag_name }}
-          file: '**/build/libs/*'
-          file_glob: true
-          overwrite: true
-          repo_token: ${{ secrets.GITHUB_TOKEN }}
+          tag_name: ${{ needs.release.outputs.tag_name }}
+          files: '**/build/libs/*'
+          token: ${{ secrets.GITHUB_TOKEN }}

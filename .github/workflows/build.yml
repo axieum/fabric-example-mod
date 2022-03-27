@@ -39,20 +39,20 @@ jobs:
         run: ./gradlew build publishToMavenLocal
 
       - name: 📦 Upload artifacts
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v3
         with:
           name: artifacts
           path: '**/build/libs/'
 
       - name: 📝 Upload reports
         if: ${{ always() }}
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v3
         with:
           name: reports
           path: '**/build/reports/'
 
       - name: 🗃 Upload Maven local
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v3
         with:
           name: maven
           path: ~/.m2/repository/
