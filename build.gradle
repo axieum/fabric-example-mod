@@ -82,6 +82,16 @@ allprojects {
         maven { name 'Fabric'; url 'https://maven.fabricmc.net/' }
         maven { name 'TerraformersMC'; url 'https://maven.terraformersmc.com/' }
     }
+
+    // Read the `CHANGELOG.md` for the project version's changelog notes if present
+    ext.getChangelogNotes = { ->
+        final File changelog = project.file("CHANGELOG.md")
+        if (changelog.canRead()) {
+            def match = changelog.text =~ "(?ms)^## \\[\\Q${project.version}\\E].*?(?=^## |\\Z)"
+            if (match.find() && !match.group().isBlank()) return match.group().trim()
+        }
+        return "For a list of changes, please refer to https://github.com/${project.github_repo}/releases/tag/v${project.version}"
+    }
 }
 
 // Define how artifacts are published to CurseForge (https://curseforge.com)
@@ -96,18 +106,18 @@ curseforge {
         // Set the release type
         releaseType = project.version.contains('alpha') ? 'alpha' : project.version.contains('beta') ? 'beta' : 'release'
         // Set the release notes
-        changelog = "For a list of changes, please refer to https://github.com/${project.github_repo}/releases/tag/v${project.version}"
+        changelog = project.getChangelogNotes()
         // Add all supported game versions
         project.cf_game_versions.split(', ').each { addGameVersion it }
         // Add the main artifact
         mainArtifact(remapJar) { displayName = "${project.mod_name} v${project.version} for Minecraft ${project.minecraft_version}" }
         // Add any additional artifacts
-        addArtifact sourcesJar
-        addArtifact jar
+        addArtifact remapSourcesJar
+        addArtifact javadocJar
         subprojects.each {
             addArtifact it.remapJar
-            addArtifact it.sourcesJar
-            addArtifact it.jar
+            addArtifact it.remapSourcesJar
+            addArtifact it.javadocJar
         }
         // Add any dependencies
         relations {
@@ -142,7 +152,7 @@ modrinth {
     // Set the release version
     versionNumber = project.version
     // Set the release notes
-    changelog = "For a list of changes, please refer to https://github.com/${project.github_repo}/releases/tag/v${project.version}"
+    changelog = project.getChangelogNotes()
     // Add all supported mod loaders
     loaders = ['fabric']
     // Add all supported game versions
@@ -150,12 +160,12 @@ modrinth {
     // Add the main artifact
     uploadFile = remapJar
     // Add any additional artifacts
-    additionalFiles.add sourcesJar
-    additionalFiles.add jar
+    additionalFiles.add remapSourcesJar
+    additionalFiles.add javadocJar
     subprojects.each {
         additionalFiles.add it.remapJar
-        additionalFiles.add it.sourcesJar
-        additionalFiles.add it.jar
+        additionalFiles.add it.remapSourcesJar
+        additionalFiles.add it.javadocJar
     }
     // Add any dependencies
     if (project.mr_relations_required) dependencies.addAll project.mr_relations_required.split(', ').collect { new ModDependency(it, 'required') }
