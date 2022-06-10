@@ -9,6 +9,9 @@ import net.minecraft.client.gui.screen.TitleScreen;
 
 import static com.example.modid.Example.LOGGER;
 
+/**
+ * Mixes into the title screen and logs a message.
+ */
 @Mixin(TitleScreen.class)
 public class TitleScreenMixin
 {
