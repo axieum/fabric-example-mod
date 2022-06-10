@@ -10,6 +10,7 @@ import net.fabricmc.api.ModInitializer;
  */
 public class Example implements ModInitializer
 {
+    /** Example Mod logger. */
     public static final Logger LOGGER = LogManager.getLogger("modid");
 
     @Override

@@ -49,6 +49,7 @@ allprojects {
     // Produce a sources distribution
     java {
         withSourcesJar()
+        withJavadocJar()
     }
 
     // Add the licence to all distributions
