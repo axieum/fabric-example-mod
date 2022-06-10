@@ -47,7 +47,7 @@ allprojects {
         useJUnitPlatform()
     }
 
-    // Produce a sources distribution
+    // Produce additional distributions
     java {
         withSourcesJar()
         withJavadocJar()
