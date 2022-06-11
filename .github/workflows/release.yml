@@ -27,7 +27,8 @@ jobs:
 
     outputs:
       release_created: ${{ steps.release-please.outputs.release_created }}
-      tag_name: ${{ steps.release-please.outputs.tag_name }}
+      paths_released: ${{ steps.release-please.outputs.paths_released }}
+      releases: ${{ toJson(steps.release-please.outputs) }}
 
   publish:
     name: Publish
@@ -56,9 +57,32 @@ jobs:
           CURSEFORGE_TOKEN: ${{ secrets.CURSEFORGE_TOKEN }}
           MODRINTH_TOKEN: ${{ secrets.MODRINTH_TOKEN }}
 
+      - name: 🗃️ Archive artifacts
+        uses: actions/upload-artifact@v3
+        with:
+          name: artifacts
+          path: '**/build/libs/'
+
+  upload:
+    name: Upload
+
+    strategy:
+      matrix:
+        path: ${{ fromJson(needs.release.outputs.paths_released) }}
+
+    runs-on: ubuntu-latest
+    needs: [release, publish]
+    if: ${{ needs.release.outputs.release_created }}
+
+    steps:
+      - name: 🗃️ Restore artifacts
+        uses: actions/download-artifact@v3
+        with:
+          name: artifacts
+
       - name: 📦 Upload artifacts
         uses: softprops/action-gh-release@v1
         with:
-          tag_name: ${{ needs.release.outputs.tag_name }}
-          files: '**/build/libs/*'
+          tag_name: ${{ fromJson(needs.release.outputs.releases)[matrix.path == '.' && 'tag_name' || format('{0}--tag_name', matrix.path)] }}
+          files: ${{ matrix.path }}/**/build/libs/*
           token: ${{ secrets.GITHUB_TOKEN }}
