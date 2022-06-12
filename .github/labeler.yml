@@ -12,7 +12,8 @@ assets:
 
 # Add 'ci' label for changes to the deployment process
 ci:
-  - '.releaserc*'
+  - 'release-please-config.json'
+  - '.github/release-please.json'
   - any: ['.github/workflows/**/*', '!.github/workflows/build.yml']
   - '.github/labeler.yml'
 
