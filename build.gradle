@@ -10,6 +10,7 @@ plugins {
 allprojects {
     apply plugin: 'java'
     apply plugin: 'checkstyle'
+    apply plugin: 'maven-publish'
     apply plugin: 'fabric-loom'
 
     group = project.maven_group
@@ -92,6 +93,27 @@ allprojects {
         }
         return "For a list of changes, please refer to https://github.com/${project.github_repo}/releases/tag/v${project.version}"
     }
+
+    // Define how packages are published
+    publishing {
+        // Declare all publications
+        publications {
+            mavenJava(MavenPublication) { from components.java }
+        }
+
+        // Add repositories to publish to
+        repositories {
+            // GitHub Packages (https://pkg.github.com)
+            maven {
+                name 'GitHub'
+                url "https://maven.pkg.github.com/${project.github_repo}"
+                credentials {
+                    username System.getenv('GITHUB_ACTOR')
+                    password System.getenv('GITHUB_TOKEN')
+                }
+            }
+        }
+    }
 }
 
 // Define how artifacts are published to CurseForge (https://curseforge.com)
@@ -171,27 +193,6 @@ modrinth {
     if (project.mr_relations_required) dependencies.addAll project.mr_relations_required.split(', ').collect { new ModDependency(it, 'required') }
     if (project.mr_relations_optional) dependencies.addAll project.mr_relations_optional.split(', ').collect { new ModDependency(it, 'optional') }
     if (project.mr_relations_incompatible) dependencies.addAll project.mr_relations_incompatible.split(', ').collect { new ModDependency(it, 'incompatible') }
-}
-
-// Define how packages are published
-publishing {
-    // Declare all publications
-    publications {
-        mavenJava(MavenPublication) { from components.java }
-    }
-
-    // Add repositories to publish to
-    repositories {
-        // GitHub Packages (https://pkg.github.com)
-        maven {
-            name 'GitHub'
-            url "https://maven.pkg.github.com/${project.github_repo}"
-            credentials {
-                username System.getenv('GITHUB_ACTOR')
-                password System.getenv('GITHUB_TOKEN')
-            }
-        }
-    }
 }
 
 publish.finalizedBy tasks.curseforge, tasks.modrinth
